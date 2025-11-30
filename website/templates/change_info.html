@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Change Informations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding-top: 50px;
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 10px;
+        }
+
+        form div {
+            margin-bottom: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        label {
+            font-weight: bold;
+            color: #666;
+            display: block;
+            width: 150px;
+            text-align: right;
+            margin-right: 20px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            transition: border-color 0.3s;
+            width: 100%;
+            max-width: 300px;
+            box-sizing: border-box;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            border-color: #007bff;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+        }
+
+        button {
+            background-color: #4CAF50; /* Vert */
+            border: none;
+            color: rgb(202, 200, 200);
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+            width: 150px;
+        }
+
+        button:hover {
+            background-color: #45a049; /* Vert foncé */
+        }
+
+        #message,
+        #errorMessage {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 16px;
+            color: green; /* Message de succès en vert */
+        }
+
+        #errorMessage {
+            color: red; /* Message d'erreur en rouge */
+        }
+
+        #passwordDiv {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+        }
+
+        #submitButton {
+            background-color: #36f43f; /* Rouge */
+            border: none;
+            color: white;
+            padding: 12px 20px;
+            text-align: center;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            border-radius: 5px;
+            width: 150px;
+        }
+
+        #submitButton:hover {
+            background-color: #d32f2f; /* Rouge foncé */
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<h1>Change informations</h1>
+
+<div id="message"></div>
+<div id="errorMessage"></div>
+
+<form id="infoForm">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+    <div>
+        <label>First Name:</label>
+        <input type="text" name="first_name" value="{{ current_user.first_name }}" disabled>
+        <button type="button" onclick="modifyField('first_name')">Modify</button>
+    </div>
+    <div>
+        <label>Email:</label>
+        <input type="email" name="email" value="{{ current_user.email }}" disabled>
+        <button type="button" onclick="modifyField('email')">Modify</button>
+    </div>
+    <div>
+        <label>Phone:</label>
+        <input type="text" name="phone" value="{{ current_user.phone }}" disabled>
+        <button type="button" onclick="modifyField('phone')">Modify</button>
+    </div>
+    <div>
+        <label>City:</label>
+        <input type="text" name="city" value="{{ current_user.city }}" disabled>
+        <button type="button" onclick="modifyField('city')">Modify</button>
+    </div>
+    <div>
+        <label>Region:</label>
+        <input type="text" name="region" value="{{ current_user.region }}" disabled>
+        <button type="button" onclick="modifyField('region')">Modify</button>
+    </div>
+
+    <div id="passwordDiv" style="display: none;">
+        <label>Password:</label>
+        <input type="password" name="password">
+    </div>
+
+    <button type="submit" id="submitButton" style="display: none;">Save</button>
+</form>
+
+<script>
+function modifyField(fieldName) {
+    const field = document.querySelector(`input[name='${fieldName}']`);
+    const button = field.nextElementSibling;
+    field.disabled = false;
+    button.textContent = 'Cancel';
+    button.onclick = function() {
+        field.disabled = true;
+        field.value = '';
+        button.textContent = 'Modify';
+        button.onclick = function() {
+            modifyField(fieldName);
+        };
+    };
+    document.getElementById('passwordDiv').style.display = 'block';
+    document.getElementById('submitButton').style.display = 'block';
+}
+
+document.getElementById('infoForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+    const formData = new FormData(event.target);
+    fetch('/update_info', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('message').textContent = 'Information(s) updated successfully.';
+            document.getElementById('errorMessage').textContent = '';
+            document.getElementById('passwordDiv').style.display = 'none';
+            document.getElementById('submitButton').style.display = 'none';
+            resetModifyButtons(); // Réinitialiser les boutons "Modify" après la mise à jour
+        } else {
+            if (data.error === 'incorrect_password') {
+                document.getElementById('errorMessage').textContent = 'Incorrect password. Try again.';
+                document.getElementById('message').textContent = '';
+            } else {
+                document.getElementById('errorMessage').textContent = 'An error occurred while updating information.';
+                document.getElementById('message').textContent = '';
+            }
+        }
+    });
+});
+
+function resetModifyButtons() {
+    const buttons = document.querySelectorAll("button");
+    buttons.forEach(button => {
+        if (button.textContent === 'Cancel') {
+            button.textContent = 'Modify';
+            button.onclick = function() {
+                const fieldName = button.previousElementSibling.name;
+                modifyField(fieldName);
+            };
+        }
+    });
+}
+</script>
+
+</body>
+{% endblock %}
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

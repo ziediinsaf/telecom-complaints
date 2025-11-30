@@ -1,0 +1,254 @@
+{% extends "base.html" %}
+{% block title %}Complaint Tracking{% endblock %}
+{% block content %}
+<div class="flash-message" id="flash-message" style="display: none;"></div>
+
+<h1 align="center">Customers Complaints</h1>
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-6">
+      <h2>Your Complaints</h2>
+      <ul class="list-group" id="notes">
+        {% for note in user_notes %}
+        <li class="list-group-item" id="note{{ note.id }}">       
+              
+            <div>
+              <p class="note-date">{{ note.date_created }}</p>
+              <div id="note-content-{{ note.id }}">
+                <p>Complaint: {{ note.data }}</p>
+                <p>Complaint Type: {{ note.complaint_type }}</p>
+                <p>Address: {{ note.address }}</p>
+                <p>Region: {{ note.region }}</p>
+                <p>Status: {{ note.status }}</p>
+                <p class="card-text">Files:</p>
+                    <ul>
+                        {% for file in note_files_map[note.id] %}
+                        <li><a href="{{ url_for('views.uploaded_file', filename=file.filename) }}" target="_blank">{{ file.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+              </div>
+            </div>
+            <!-- Buttons for editing and deleting -->
+            <button type="button" class="btn-edit btn btn-primary" onClick="editNote({{ note.id }}, '{{ note.status }}')">
+              Edit
+            </button>
+            <button type="button" class="btn-delete btn btn-danger" onClick="deleteComplaint({{ note.id }})">
+              Delete
+            </button>
+            
+            
+
+            {% if note.status == 'Resolved' %}
+              <!-- Buttons for technician feedback -->
+              <div>
+                <p class="card-text">Feedback:</p>
+
+                <button type="button" class="btn btn-resolved btn-success" onClick="sendFeedback({{ note.id }}, 'resolved')">
+                    Resolved
+                </button>
+                <button type="button" class="btn btn-not-resolved btn-success" onClick="sendFeedback({{ note.id }}, 'not resolved')">
+                    Not Resolved
+                </button>
+              </div>
+            {% endif %}
+            <!-- Edit form -->
+            <div class="edit-form" id="edit-form-{{ note.id }}" style="display: none;">
+              <h3>Edit Complaint {{ note.id }}</h3>
+              <div class="mb-3">
+                <label for="edit-address" class="form-label">Address</label>
+                <input type="text" class="form-control" id="edit-address-{{ note.id }}" value="{{ note.address }}">
+              </div>
+              <div class="mb-3">
+                <label for="edit-complaintType" class="form-label">Type of Complaint</label>
+                <select class="form-select" id="edit-complaintType-{{ note.id }}">
+                    <option value="">Select Type</option>
+                    <option value="Connection Problems" {% if note.complaint_type == "Connection Problems" %}selected{% endif %}>Connection Problems</option>
+                    <option value="Billing Issues" {% if note.complaint_type == "Billing Issues" %}selected{% endif %}>Billing Issues</option>
+                    <option value="Customer Service" {% if note.complaint_type == "Customer Service" %}selected{% endif %}>Customer Service</option>
+                    <option value="Service Interruptions" {% if note.complaint_type == "Service Interruptions" %}selected{% endif %}>Service Interruptions</option>
+                    <option value="Technical Problems" {% if note.complaint_type == "Technical Problems" %}selected{% endif %}>Technical Problems</option>
+                    <option value="Package or Offer Migration" {% if note.complaint_type == "Package or Offer Migration" %}selected{% endif %}>Package or Offer Migration</option>
+                    <option value="Service Quality" {% if note.complaint_type == "Service Quality" %}selected{% endif %}>Service Quality</option>
+                    <option value="Contract Termination" {% if note.complaint_type == "Contract Termination" %}selected{% endif %}>Contract Termination</option>
+                    <option value="Advertising and Promotions" {% if note.complaint_type == "Advertising and Promotions" %}selected{% endif %}>Advertising and Promotions</option>
+                </select>
+              </div>
+              <div class="mb-3">
+                <label for="edit-data" class="form-label">Complaint</label>
+                <textarea class="form-control" id="edit-data-{{ note.id }}">{{ note.data }}</textarea>
+              </div>
+              <div align="center">
+                <button type="button" class="btn btn-add" onClick="updateNote({{ note.id }})">
+                  Update
+                </button>
+              </div>
+            </div>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- CSRF token meta tag -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+
+<script>
+  function showFlashMessage(message, type, fontSize) {
+    const flashMessage = document.getElementById('flash-message');
+    flashMessage.innerText = message;
+    flashMessage.style.backgroundColor = type === 'success' ? '#4caf50' : '#f44336';
+    flashMessage.style.color = 'white'; // Set text color to white
+    flashMessage.style.display = 'block';
+    flashMessage.style.fontSize = fontSize; // Set font size
+    setTimeout(() => {
+        flashMessage.style.display = 'none';
+    }, 3000);
+  }
+
+  function editNote(noteId, noteStatus) {
+    if (noteStatus.toLowerCase() === 'resolved') {
+      showFlashMessage('You cannot edit a resolved complaint.', 'error', '32px');
+      return;
+    }
+   
+    if (noteStatus.toLowerCase() === 'in progress') {
+      showFlashMessage('You cannot edit a complaint that is in progress.', 'error');
+      return;
+    }
+
+    document.getElementById(`note-content-${noteId}`).style.display = 'none';
+    document.getElementById(`edit-form-${noteId}`).style.display = 'block';
+  }
+
+  function updateNote(noteId) {
+    let data = document.getElementById(`edit-data-${noteId}`).value;
+    let address = document.getElementById(`edit-address-${noteId}`).value;
+    let complaintType = document.getElementById(`edit-complaintType-${noteId}`).value;
+
+    // Retrieve CSRF token from meta tag
+    let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    fetch(`/update_note/${noteId}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-Token': csrfToken // Include CSRF token in request headers
+        },
+        body: JSON.stringify({ data: data ,address: address, complaint_type: complaintType}),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not ok');
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data.success) {
+            showFlashMessage(data.message, 'success');
+            // Update the content of the note in the DOM
+            const noteContentElement = document.getElementById(`note-content-${noteId}`);
+            noteContentElement.querySelector('p:nth-child(1)').innerText = `Complaint: ${data.updated_data}`;
+            noteContentElement.querySelector('p:nth-child(2)').innerText = `Complaint Type: ${complaintType}`;
+            noteContentElement.querySelector('p:nth-child(3)').innerText = `Address: ${address}`;
+
+            // Hide the input fields used for editing
+            document.getElementById(`edit-form-${noteId}`).style.display = 'none';
+
+            // Show the updated data
+            noteContentElement.style.display = 'block';
+        } else {
+            showFlashMessage(data.message, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showFlashMessage('Failed to update complaint', 'error');
+    });
+ }
+ function deleteComplaint(noteId) {
+  let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+  fetch(`/delete_complaint/${noteId}`, {
+      method: 'DELETE',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken // Include the CSRF token in the request headers
+      },
+  })
+  .then(response => {
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      return response.json();
+  })
+  .then(data => {
+      if (data.success) {
+          showFlashMessage(data.message, 'success');
+          const complaintElement = document.getElementById(`note${noteId}`);
+          if (complaintElement) {
+              complaintElement.parentNode.removeChild(complaintElement); // Remove the complaint element from the DOM
+          } else {
+              console.error(`Complaint element with ID note${noteId} not found`);
+          }
+      } else {
+          showFlashMessage(data.message, 'error');
+      }
+  })
+  .catch(error => {
+      console.error('Error deleting complaint:', error);
+      showFlashMessage('Failed to delete complaint', 'error');
+  });
+ }
+
+ function sendFeedback(noteId, feedback) {
+   let csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+   fetch(`/send_feedback/${noteId}`, {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+          'X-CSRF-Token': csrfToken // Include CSRF token in request headers
+      },
+      body: JSON.stringify({ feedback: feedback }),
+   })
+   .then(response => {
+      if (!response.ok) {
+          throw new Error('Network response was not ok');
+      }
+      return response.json();
+   })
+   .then(data => {
+      if (data.success) {
+          showFlashMessage(data.message, 'success');
+      } else {
+          showFlashMessage(data.message, 'error');
+       }
+   })
+   .catch(error => {
+      console.error('Error:', error);
+      showFlashMessage('Failed to send feedback', 'error');
+   });
+ }
+</script>
+
+<style>
+.btn-edit {
+  /* Edit button styles */
+  color: white;
+}
+
+.btn-delete {
+  /* Delete button styles */
+  color: white;
+}
+
+.btn-resolved, .btn-not-resolved {
+  /* Resolved and Not Resolved button styles */
+  color: white;
+}
+</style>
+
+{% endblock %}
+

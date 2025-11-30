@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}All Admin Accounts{% endblock %}
+{% block content %}
+    <div class="container">
+        <h1 class="text-center mt-4 mb-4">All Admin Accounts</h1>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
+            <a class="navbar-brand" href="/create_account">Return</a>
+        </nav>
+        <div class="table-responsive">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>City</th>
+                        <th>Region</th>
+                       
+                        
+                       
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for admin in admins %}
+                    <tr>
+                        <td>{{ admin.first_name }}</td>
+                        <td>{{ admin.email }}</td>
+                        <td>{{ admin.phone }}</td>
+                        <td>{{ admin.city }}</td>
+                        <td>{{ admin.region }}</td>
+                        
+                        <td>
+                            
+                            <form action="{{ url_for('views.delete_admin', id=admin.id) }}" method="post">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endblock %}

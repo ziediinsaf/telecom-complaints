@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Technician Complaints</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        /* Custom Styles */
+        .container {
+            margin-top: 50px;
+        }
+        h2 {
+            margin-bottom: 20px;
+        }
+        th {
+            text-align: center;
+        }
+        td {
+            vertical-align: middle;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+   
+    {% block content %}
+
+ <div class="container">
+    <h2>Update Your Availability</h2>
+    <!-- Availability Update Form -->
+    <form id="availability-form" action="{{ url_for('views.update_availability', technician_id=current_user.id) }}" method="post">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <div class="form-group">
+            <label for="availability">Availability:</label>
+            <select class="form-control" name="new_availability" id="availability">
+                <option value="available" {% if current_user.availability == 'available' %} selected {% endif %}>Available</option>
+                <option value="unavailable" {% if current_user.availability == 'unavailable' %} selected {% endif %}>Unavailable</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Update Availability</button>
+    </form>
+ </div>
+
+ <div class="container">
+    <h2>Complaints Assigned to You</h2>
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Address</th>
+                    <th>Region</th>
+                    <th>Phone</th>
+                    <th>Data</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Additional file</th>
+                    <th>Feedback</th> <!-- New column for the feedback -->
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for note in technician_notes %}
+                <tr>
+                    <td>{{ note.id }}</td>
+                    <td>{{ note.user.first_name }}</td>
+                    <td>{{ note.address}}</td>
+                    <td>{{ note.region }}</td>
+                    <td>{{ note.user.phone }}</td>
+                    <td>{{ note.data }}</td>
+                    <td>{{ note.date }}</td>
+                    <td>{{ note.status }}</td>
+                    <td>
+                        {% if note.files %}
+                            {% for file in note.files %}
+                                <a href="{{ url_for('views.uploaded_file', filename=file.filename) }}">{{ file.filename }}</a><br>
+                            {% endfor %}
+                        {% else %}
+                            No file attached
+                        {% endif %}
+                    </td>
+                    <td> <!-- Feedback -->
+                        {{ note.feedback if note.feedback else 'No feedback yet' }}  <!-- Display feedback -->
+                    </td>
+                    <td> <!-- Actions -->
+                        <form action="{{ url_for('views.update_status', note_id=note.id) }}" method="post" class="status-form">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <div class="btn-group" role="group" aria-label="Status Update">
+                                <button type="submit" class="btn btn-primary" name="new_status" value="In Progress">In Progress</button>
+                                <button type="submit" class="btn btn-success" name="new_status" value="Resolved">Resolved</button>
+                            </div>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+ </div>
+ {% endblock %}
+
+</body>
+</html>
+
+
+
+
+
+

@@ -1,0 +1,149 @@
+<!-- index.html -->
+{% extends "base.html" %}
+{% block content %}
+
+
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='fonts/icomoon/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/owl.carousel.min.css') }}">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+    <!-- Style -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title>Login #7</title>
+    
+</head>
+<body>
+    
+<div class="content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <img src="{{ url_for('static', filename='images/undraw_remotely_2j6y.svg') }}" alt="Image" class="img-fluid">
+            </div>
+            <div class="col-md-6 contents">
+                <div class="row justify-content-center">
+                    <div class="col-md-8">
+                        <div class="mb-4">
+                            <h3>Log In </h3>
+                            <p class="mb-4" style="color: #555;">Welcome to our login page. Please enter your credentials to access your account.</p>
+                          </div>                        </div>
+                          <form method="POST">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                            <!-- Choix du type de connexion -->
+                            <div name="account_type" class="form-group">
+                                <label for="login_type" style="color: #555;">Log in as</label>
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">
+                                            <i class="icon-user" style="color: #555;"></i>
+                                        </div>
+                                    </div>
+                                    <select class="form-control" id="login_type" name="login_type" style="color: #555;">
+                                        <option value="client">Client</option>
+                                        <option value="admin">Admin</option>
+                                        <option value="technician">Technician</option>
+                                    </select>
+                                </div>
+                            </div>
+                           
+                            <div class="form-group">
+                                <input
+                                type="text"
+                                class="form-control"
+                                id="email"
+                                name="email"
+                                placeholder="Email address"
+                                />
+                            </div>
+                           
+                            <div class="form-group">
+                                
+                                <div class="input-group">
+                                    <input
+                                        type="password"
+                                        class="form-control"
+                                        id="password"
+                                        name="password"
+                                        placeholder="Password"
+                                        style="padding-right: 35px;" 
+                                    />
+                                    <div class="input-group-append">
+                                        <button class="btn btn-link" type="button" id="togglePassword" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); border: none; background-color: transparent;">
+                                            <i class="fa fa-eye" style="font-size: 0.8em;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                            </div>
+                           
+                        
+                            <input type="submit" value="Log In" class="btn btn-block btn-primary">
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="{{ url_for('static', filename='js/jquery-3.3.1.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/popper.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+    document.getElementById('email').addEventListener('input', function(e) {
+        if (e.target.value.length > 0) {
+            e.target.removeAttribute('placeholder');
+        } else {
+            e.target.setAttribute('placeholder', 'Email address');
+        }
+    });
+</script>
+<script>
+    document.getElementById('email').addEventListener('input', function(e) {
+        if (e.target.value.length > 0) {
+            e.target.removeAttribute('placeholder');
+        } else {
+            e.target.setAttribute('placeholder', 'Email address');
+        }
+    });
+
+    document.getElementById('password').addEventListener('input', function(e) {
+        var passwordLabel = document.getElementById('passwordLabel');
+        if (e.target.value.length > 0) {
+            passwordLabel.style.display = 'none';
+        } else {
+            passwordLabel.style.display = 'block';
+        }
+    });
+
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        var passwordInput = document.getElementById('password');
+        var passwordType = passwordInput.getAttribute('type');
+        
+        if (passwordType === 'password') {
+            passwordInput.setAttribute('type', 'text');
+            document.getElementById('togglePassword').innerHTML = '<i class="fa fa-eye-slash"></i>';
+        } else {
+            passwordInput.setAttribute('type', 'password');
+            document.getElementById('togglePassword').innerHTML = '<i class="fa fa-eye"></i>';
+        }
+    });
+</script>
+<script type="text/javascript">
+    if (top != self) {
+        top.location = self.location;
+    }
+</script>
+
+
+
+
+
+</body>
+{% endblock %}

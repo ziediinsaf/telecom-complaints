@@ -1,0 +1,160 @@
+{% extends "base.html" %}
+{% block title %}Create Account{% endblock %}
+{% block content %}
+  
+  <style>
+    /* Style du formulaire */
+    .container {
+      background-color: #f4f4f4;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      color: #333;
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+      margin-bottom: 30px;
+      text-align: center;
+    }
+
+    label {
+      font-weight: bold;
+      color: #666;
+    }
+
+    .form-control,
+    .form-select {
+      width: 100%;
+      padding: 12px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      transition: border-color 0.3s;
+      font-size: 16px;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+      border-color: #007bff;
+      box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      border-color: #007bff;
+      width: auto; /* Ajusté la largeur */
+      padding: 8px 16px; /* Ajusté le padding pour garder la hauteur */
+      font-size: 16px;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .btn-primary:hover {
+      background-color: #0056b3;
+      border-color: #0056b3;
+    }
+  </style>
+
+  <div class="container">
+    <h2>Create a new account</h2>
+    <form action="/create_account" method="post">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+      <!-- Account Type -->
+      <div class="form-group row">
+        <label for="login_type" class="col-sm-4 col-form-label">Account Type:</label>
+        <div class="col-sm-8">
+          <select class="form-select" id="login_type" name="login_type">
+            <option value="admin">Admin</option>
+            <option value="technician">Technician</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Username -->
+      <div class="form-group row">
+        <label for="username" class="col-sm-4 col-form-label">Username:</label>
+        <div class="col-sm-8">
+          <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required>
+        </div>
+      </div>
+      
+      <!-- Email -->
+      <div class="form-group row">
+        <label for="email" class="col-sm-4 col-form-label">Email:</label>
+        <div class="col-sm-8">
+          <input type="text" id="email" name="email" class="form-control" placeholder="Enter email" required>
+        </div>
+      </div>
+      
+      <!-- Password -->
+      <div class="form-group row">
+        <label for="password" class="col-sm-4 col-form-label">Password:</label>
+        <div class="col-sm-8">
+          <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required>
+        </div>
+      </div>
+      
+      <!-- Phone -->
+      <div class="form-group row">
+        <label for="phone" class="col-sm-4 col-form-label">Phone:</label>
+        <div class="col-sm-8">
+          <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone" required>
+        </div>
+      </div>
+      
+      <!-- City -->
+      <div class="form-group row">
+        <label for="city" class="col-sm-4 col-form-label">City:</label>
+        <div class="col-sm-8">
+          <input type="text" id="city" name="city" class="form-control" placeholder="Enter city" required>
+        </div>
+      </div>
+      
+      <!-- Region -->
+      <div class="form-group row">
+        <label for="region" class="col-sm-4 col-form-label">Region:</label>
+        <div class="col-sm-8">
+          <select class="form-select" id="region" name="region">
+              <option value="Ariana">Ariana</option>
+              <option value="Beja">Beja</option>
+              <option value="Ben arous">Ben arous</option>
+              <option value="Bizerte">Bizerte</option>
+              <option value="Gabes">Gabes</option>
+              <option value="Gafsa">Gafsa</option>
+              <option value="Jandouba">Jandouba</option>
+              <option value="Karouan">Karouan</option>
+              <option value="Kasserine">Kasserine</option>
+              <option value="Kbeli">Kbeli</option>
+              <option value="La Manouba">La Manouba</option>
+              <option value="Le Kef">Le Kef</option>
+              <option value="Mahdia">Mahdia</option>
+              <option value="Mednine">Mednine</option>
+              <option value="Monastir">Monastir</option>
+              <option value="Nabeul">Nabeul</option>
+              <option value="Sfax">Sfax</option>
+              <option value="Sidi Bouzid">Sidi Bouzid</option>
+              <option value="Seliana">Seliana</option>
+              <option value="Soussa">Soussa</option>
+              <option value="Tataouine">Tataouine</option>
+              <option value="Tozeur">Tozeur</option>
+              <option value="Tunis">Tunis</option>
+              <option value="Zaghouan">Zaghouan</option>
+          </select>
+        </div>
+      </div>
+      
+      <!-- Submit Button -->
+      <div class="form-group row">
+        <div class="col-sm-12 text-center">
+          <input type="submit" value="Create" class="btn btn-primary">
+        </div>
+      </div>
+      
+    </form>
+  </div>
+
+{% endblock %}
+

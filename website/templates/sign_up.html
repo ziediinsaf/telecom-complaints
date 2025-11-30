@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %}Sign Up{% endblock %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .registration-image {
+            width: 100%;
+            height: auto; /* Utilisation de 'auto' pour conserver les proportions */
+            object-fit: cover;
+            margin-bottom: 0rem; /* Réduire la marge basse pour compenser */
+        }
+
+        .card-registration {
+            background-color: #e6f0ff; /* Couleur bleue très claire */
+            border-radius: 15px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1); /* Ombre douce */
+            margin-top: -4rem; /* Ajuster la marge vers le haut */
+        }
+
+        @media (min-width: 768px) {
+            .registration-image {
+                width: 100%;
+                height: auto; /* Utilisation de 'auto' pour conserver les proportions */
+                margin-bottom: 0rem; /* Réduire la marge basse pour compenser */
+            }
+
+            .col-lg-6 {
+                padding: 0;
+                height: 100vh; /* Hauteur de la colonne égale à la hauteur de la fenêtre */
+                display: flex; /* Affichage flex pour aligner le contenu */
+                justify-content: center; /* Centrer le contenu horizontalement */
+                align-items: center; /* Centrer le contenu verticalement */
+            }
+
+            .container {
+                height: 100vh; /* Hauteur de la section égale à la hauteur de la fenêtre */
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <section class="vh-100 gradient-custom">
+        <div class="container py-5 h-100">
+            <div class="row justify-content-center align-items-center h-100">
+                <div class="col-12 col-lg-6">
+                    <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+                        <div class="card-body p-4 p-md-5">
+                            <h3 class="mb-4 pb-2 pb-md-0 mb-md-5">Sign Up</h3>
+                            <p class="mt-3 text-left">Already have an account? <a href="/login">Login</a></p>
+                            <form method="POST">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <label for="email" class="form-label">Email Address</label>
+                                        <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="firstName" class="form-label">First Name</label>
+                                        <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Enter first name" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="phone" class="form-label">Phone Number</label>
+                                        <input type="tel" class="form-control" id="phone" name="phone" placeholder="Enter phone number" required>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <label for="password1" class="form-label">Password</label>
+                                        <input type="password" class="form-control" id="password1" name="password1" placeholder="Enter password" required>
+                                    </div>
+                                    
+                                    <div class="col-md-6 mb-3">
+                                        <label for="password2" class="form-label">Confirm Password</label>
+                                        <input type="password" class="form-control" id="password2" name="password2" placeholder="Confirm password" required>
+                                    </div>
+                                </div>
+                                <div class="text-center">
+                                    <button type="submit" class="btn btn-primary">Sign Up</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                    <img src="/static/images/signup.avif" alt="Registration Image" class="registration-image">
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Bootstrap JS and Popper.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        if (top != self) {
+            top.location = self.location;
+        }
+    </script>
+</body>
+
+</html>
+{% endblock %}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

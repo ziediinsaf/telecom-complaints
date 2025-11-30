@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>All Notes</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        .note {
+            margin-bottom: 20px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .note span {
+            display: block;
+            margin-bottom: 10px;
+        }
+        .note-id {
+            font-weight: bold;
+            color: #333;
+        }
+        .note-content {
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    {% extends "base.html" %}
+    {% block title %}Login{% endblock %}
+    {% block content %}
+        <div class="collapse navbar-collapse" id="navbar">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link" id="acceuil" href="/acceuil">Homepage</a>
+            <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+            <a class="nav-item nav-link" id="create_account" href="/create_account">Create Account</a>
+            <a class="nav-item nav-link" id="all_accounts" href="/all_accounts">View Technicians accounts</a>
+            <a class="nav-item nav-link" id="account_admin" href="/account_admin">View Admins accounts</a>
+          </div>
+        </div>
+
+        <div class="container">
+            <form method="POST">
+           
+             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+       
+             <select class="form-control" id="region" name="region">
+                <option value="All">All</option>
+                <option value="Ariana">Ariana</option>
+                <option value="Beja">Beja</option>
+                <option value="Ben arous">Ben arous</option>
+                <option value="Bizerte">Bizerte</option>
+                <option value="Gabes">Gabes</option>
+                <option value="Gafsa">Gafsa</option>
+                <option value="Jandouba">Jandouba</option>
+                <option value="Karouan">Karouan</option>
+                <option value="Kasserine">Kasserine</option>
+                <option value="Kbeli">Kbeli</option>
+                <option value="La Manouba">La Manouba</option>
+                <option value="Le Kef">Le Kef</option>
+                <option value="Mahdia">Mahdia</option>
+                <option value="Mednine">Mednine</option>
+                <option value="Monastir">Monastir</option>
+                <option value="Nabeul">Nabeul</option>
+                <option value="Sfax">Sfax</option>
+                <option value="Sidi Bouzid">Sidi Bouzid</option>
+                <option value="Seliana">Seliana</option>
+                <option value="Soussa">Soussa</option>
+                <option value="Tataouine">Tataouine</option>
+                <option value="Tozeur">Tozeur</option>
+                <option value="Tunis">Tunis</option>
+                <option value="Zaghouan">Zaghouan</option>
+       
+             </select>
+             <br>
+   
+   
+        </form>
+
+        <h1>All Customers Complaints</h1>
+        <ul>
+            {% for note in all_notes %}
+                <li class="note">
+                    <span class="note-id">ID: {{ note.id }}</span>
+                    <span class="note-id">Status: {{ note.status }}</span>
+                    <span class="note-date">Date: {{ note.date }}</span>
+                   
+                    {% set user_info = users[users['id'] == note.user_id].iloc[0] if not users[users['id'] == note.user_id].empty else None %}
+                   
+                    {% if user_info is not none %}
+                        <span class="note-user">Client: {{ user_info.get('first_name', 'Not found') }}</span>
+                        <span class="note-telephone">Phone: {{ user_info.get('phone', 'Not found') }}</span>
+                    {% else %}
+                        <span class="note-user">Client: Not found</span>
+                        <span class="note-telephone">Phone: Not found</span>
+                    {% endif %}
+                   
+                    <span class="note-address">Address: {{ note.address }}</span>
+                    <span class="note-region">Region: {{note.region }}</span>
+                    <span class="note-complaintType">Type of Complaint: {{ note.complaint_type }}</span>
+
+                    <span class="note-content">Complaint:{{ note.data }}</span>
+
+                    <!-- Display file -->
+                    {% if note.files %}
+                    <span class="note-files">Additional file:</span>
+                    <ul>
+                        {% for file in note.files %}
+                        <li><a href="{{ url_for('views.uploaded_file', filename=file.filename) }}">{{ file.filename }}</a></li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+
+                    {% if (note.technician_id) != "X" and (note.technician_id) != "" %}
+                    <span class="note-user">Technician: {{ users[users['id'] == note.technician_id].iloc[0].get('first_name', 'Not found') }}</span>
+                    {% endif %}
+                    {% if note.technician_id == "X" %}
+                    <span class="note-user">Technician: not assigned</span>
+                     
+                    <form action="{{ url_for('views.assign_tech') }}" method="post">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <input type="hidden" name="note_id" value="{{note.id}}">  
+                    <select name="tech">
+                        <option value="X">Select a technician</option>
+                        {% for tech in techs %}
+                        {% if tech.region==note.region %}
+                        <option value="{{ tech.id }}">{{ tech.first_name }} - {% if tech.availability=='available' %}Available{% else %}Unavailable{% endif %}</option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-primary">Assign</button>
+                    </form>
+                    {% endif %}
+                   
+                    <!-- Display complaint type -->
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+    <script>
+       document.addEventListener("DOMContentLoaded", function() {
+        var techSelect = document.getElementById("techSelect");
+        var submitButton = document.getElementById("submitButton");
+
+        // Function to check if select list is empty
+        function checkSelectList() {
+            if (techSelect.value === "X") {
+                submitButton.disabled = true;
+            } else {
+                submitButton.disabled = false;
+            }
+        }
+        // Initial check when the page loads
+        checkSelectList();
+
+        // Event listener for changes in the select list
+        techSelect.addEventListener("change", function() {
+            checkSelectList();
+        });
+    });
+   
+    </script>
+    {% endblock %}
+</body>
+</html>
+
+
+
+
+
